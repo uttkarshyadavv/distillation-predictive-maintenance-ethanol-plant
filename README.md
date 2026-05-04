@@ -118,15 +118,53 @@ threshold = np.percentile(resid_h, 99) * 3.5
 | R² on Faulty Data | **-0.0889** (model correctly fails to fit fault patterns) |
 | Early Warning Triggered At | **Index 70** |
 
-**Key Findings:**
-
-- Under **healthy conditions**, residual values stay consistently low — the model accurately learns normal behavior
-- Under **faulty conditions**, residuals spike sharply, crossing both warning and threshold limits
-- The **reboiler specification** is the most sensitive parameter — small deviations cause significant changes in temperature distribution and condenser duty
-- **Temperature profiles** (T_top, T_mid, T_bottom) provide clear indicators of internal vapor-liquid equilibrium disturbances
-- Monitoring **multiple output variables together** is more reliable than watching any single parameter
-
 > A negative R² on faulty data is expected and intentional — it confirms the model was trained on normal behavior only and correctly identifies faulty data as anomalous.
+
+### Residual vs Threshold
+
+<div align="center">
+
+| Healthy Baseline | Fault Detection |
+|:---:|:---:|
+| ![Residual Healthy](Output/Figure_1.png) | ![Residual Faulty](Output/Figure_2.png) |
+
+</div>
+
+- Under **healthy conditions**, residuals stay low and within range
+- Under **faulty conditions**, residuals spike sharply — crossing both warning and threshold limits
+- Early warning triggered at **index 70**, well before complete system failure
+
+---
+
+### 📈 Condenser & Reboiler Duty Profiles
+
+<div align="center">
+
+| | Healthy Operation | Faulty Operation |
+|---|:---:|:---:|
+| **Condenser Duty** | ![](Healthy/Condenser-Duty.png) | ![](Faulty/Condenser-Duty.png) |
+| **Reboiler Duty** | ![](Healthy/Reboiler-Duty.png) | ![](Faulty/Reboiler-Duty.png) |
+
+</div>
+
+---
+
+### 🌡️ Stage Temperature Profiles
+
+<div align="center">
+
+| Stage | Healthy | Faulty |
+|---|:---:|:---:|
+| **Top (Stage 1)** | ![](Healthy/T1.png) | ![](Faulty/T1.png) |
+| **Middle (Stage 20)** | ![](Healthy/T20.png) | ![](Faulty/T20.png) |
+| **Bottom (Stage 40)** | ![](Healthy/T40.png) | ![](Faulty/T40.png) |
+
+</div>
+
+**Key Findings:**
+- The **reboiler specification** is the most sensitive parameter — small deviations cause significant shifts in temperature distribution and condenser duty
+- **Temperature profiles** (T_top, T_mid, T_bottom) clearly indicate vapor-liquid equilibrium disturbances
+- Monitoring **multiple output variables together** is more reliable than watching any single parameter
 
 ---
 
@@ -135,21 +173,33 @@ threshold = np.percentile(resid_h, 99) * 3.5
 ```
 distillation-predictive-maintenance-ethanol-plant/
 │
-├── data/
-│   ├── distillation_healthy.csv      # Normal operating data (DWSIM simulation)
-│   └── distillation_faulty.csv       # Off-design/disturbed operating data
+├── Data/
+│   ├── distillation_healthy.csv       # Normal operating data (DWSIM simulation)
+│   ├── distillation_faulty.csv        # Off-design/disturbed operating data
+│   └── distillation_results.csv       # Output: residuals + anomaly flags per sample
 │
-├── models/
-│   └── distillation_model.pkl        # Saved trained Random Forest model
+├── Healthy/                           # Plots under normal operating conditions
+│   ├── Condenser-Duty.png
+│   ├── Reboiler-Duty.png
+│   ├── T1.png                         # Top stage temperature
+│   ├── T20.png                        # Middle stage temperature
+│   └── T40.png                        # Bottom stage temperature
 │
-├── distillation_column_ml_model.py   # Main script — train, predict, detect anomalies
-├── distillation_results.csv          # Output: residuals + anomaly flags per sample
+├── Faulty/                            # Plots under disturbed/fault conditions
+│   ├── Condenser-Duty.png
+│   ├── Reboiler-Duty.png
+│   ├── T1.png
+│   ├── T20.png
+│   └── T40.png
 │
-├── figures/
-│   ├── residual_vs_threshold.png     # Residual error vs threshold plot
-│   ├── faulty.png                    # Duty variation under faulty conditions
-│   └── healthy.png                   # Duty variation under healthy conditions
+├── Output/                            # Anomaly detection results
+│   ├── Figure_1.png                   # Residual vs Threshold (healthy baseline)
+│   └── Figure_2.png                   # Residual vs Threshold (fault detection)
 │
+├── Alcohol.dwxmz                      # DWSIM simulation file
+├── distillation_column_ml_model.py    # Main script — train, predict, detect anomalies
+├── .gitignore
+├── LICENSE
 └── README.md
 ```
 
